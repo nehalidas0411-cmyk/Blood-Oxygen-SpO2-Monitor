@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — SPO2 Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #050a0f; --bg2: #0b1520; --bg3: #0f1e2e;
+    --accent: #00e5ff; --accent2: #00ff9d; --accent3: #ff4d6d;
+    --text: #c8e0f0; --muted: #5a7a99;
+    --border: rgba(0,229,255,0.12); --border2: rgba(0,229,255,0.25);
+    --mono: 'Share Tech Mono', monospace;
+    --display: 'Syne', sans-serif; --body: 'DM Sans', sans-serif;
+  }
+  body { background: var(--bg); color: var(--text); font-family: var(--body); font-weight: 300; min-height: 100vh; }
+
+  /* ── LOGIN SCREEN ─────────────────────────────────────────────── */
+  #loginScreen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: var(--bg);
+    background-image: linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .login-card {
+    background: var(--bg2); border: 1px solid var(--border2); border-radius: 6px;
+    padding: 3rem 2.5rem; width: 360px; position: relative; overflow: hidden;
+  }
+  .login-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .login-logo { font-family: var(--mono); font-size: 0.72rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.5rem; }
+  .login-title { font-family: var(--display); font-size: 1.9rem; font-weight: 800; color: #fff; margin-bottom: 0.35rem; }
+  .login-sub { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); letter-spacing: 0.06em; margin-bottom: 2.2rem; }
+  .login-label { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 0.55rem; }
+  .login-input {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border2); color: #fff;
+    font-family: var(--mono); font-size: 0.88rem; padding: 0.72rem 1rem; border-radius: 2px;
+    outline: none; letter-spacing: 0.1em; transition: border-color 0.2s;
+  }
+  .login-input:focus { border-color: var(--accent); }
+  .login-btn {
+    width: 100%; margin-top: 1.4rem; background: var(--accent); color: #000;
+    font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase;
+    font-weight: 700; padding: 0.82rem; border: none; border-radius: 2px; cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .login-btn:hover { opacity: 0.88; }
+  .login-err { margin-top: 0.8rem; font-family: var(--mono); font-size: 0.7rem; color: var(--accent3); letter-spacing: 0.06em; display: none; }
+
+  /* ── ADMIN LAYOUT ─────────────────────────────────────────────── */
+  #adminPanel { display: none; }
+
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(5,10,15,0.95); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2.5rem; display: flex; justify-content: space-between; align-items: center;
+  }
+  .header-left { display: flex; align-items: center; gap: 1.2rem; }
+  .header-logo { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); letter-spacing: 0.12em; }
+  .header-badge {
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.22rem 0.6rem; border-radius: 2px;
+    background: rgba(0,255,157,0.08); border: 1px solid rgba(0,255,157,0.2); color: var(--accent2);
+  }
+  .logout-btn {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
+    background: transparent; color: var(--muted); border: 1px solid var(--border);
+    padding: 0.45rem 1rem; border-radius: 2px; cursor: pointer; transition: color 0.2s, border-color 0.2s;
+  }
+  .logout-btn:hover { color: var(--accent3); border-color: rgba(255,77,109,0.3); }
+  .view-site-btn {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
+    background: transparent; color: var(--accent); border: 1px solid var(--border2);
+    padding: 0.45rem 1rem; border-radius: 2px; cursor: pointer; text-decoration: none;
+    transition: background 0.2s; margin-right: 0.6rem;
+  }
+  .view-site-btn:hover { background: rgba(0,229,255,0.06); }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+
+  .section-header { margin-bottom: 1.6rem; }
+  .section-tag { font-family: var(--mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.6rem; }
+  .section-tag::before { content: ''; display: block; width: 18px; height: 1px; background: var(--accent); }
+  .section-title { font-family: var(--display); font-size: 1.5rem; font-weight: 800; color: #fff; }
+  .section-desc { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); letter-spacing: 0.05em; margin-top: 0.4rem; }
+
+  hr.section-divider { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+  /* ── SCHEMATIC ADMIN ─────────────────────────────────────────── */
+  .sch-admin-wrap {
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: 4px; overflow: hidden;
+  }
+  .sch-preview {
+    min-height: 320px; display: flex; align-items: center; justify-content: center;
+    background: var(--bg3); position: relative;
+  }
+  .sch-preview img { max-width: 100%; max-height: 500px; object-fit: contain; display: none; }
+  .sch-placeholder { display: flex; flex-direction: column; align-items: center; gap: 0.8rem; }
+  .sch-placeholder svg { opacity: 0.25; }
+  .sch-placeholder p { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .sch-actions {
+    background: var(--bg2); border-top: 1px solid var(--border);
+    padding: 1rem 1.4rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;
+  }
+  .sch-filename { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); letter-spacing: 0.05em; margin-left: auto; }
+
+  /* ── PHOTO GRID ADMIN ────────────────────────────────────────── */
+  .admin-photo-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem;
+  }
+  .admin-photo-card {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .admin-photo-card:hover { border-color: var(--border2); }
+  .admin-photo-preview {
+    aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center;
+    background: var(--bg2); position: relative; overflow: hidden;
+  }
+  .admin-photo-preview img {
+    width: 100%; height: 100%; object-fit: cover; display: none;
+    transition: opacity 0.2s;
+  }
+  .admin-photo-preview .slot-placeholder {
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem; position: absolute;
+  }
+  .admin-photo-preview .slot-placeholder svg { opacity: 0.2; }
+  .admin-photo-preview .slot-placeholder span { font-family: var(--mono); font-size: 0.6rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .admin-photo-footer { padding: 0.75rem 1rem; border-top: 1px solid var(--border); }
+  .slot-name { font-family: var(--mono); font-size: 0.68rem; color: var(--text); letter-spacing: 0.05em; margin-bottom: 0.65rem; }
+  .slot-btns { display: flex; gap: 0.5rem; }
+
+  /* ── BUTTONS ─────────────────────────────────────────────────── */
+  .btn {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0.5rem 1rem; border-radius: 2px; cursor: pointer; border: none; transition: all 0.18s;
+    display: inline-flex; align-items: center; gap: 0.45rem;
+  }
+  .btn-upload { background: var(--accent); color: #000; font-weight: 700; }
+  .btn-upload:hover { opacity: 0.88; }
+  .btn-upload:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-delete { background: rgba(255,77,109,0.1); color: var(--accent3); border: 1px solid rgba(255,77,109,0.25); }
+  .btn-delete:hover { background: rgba(255,77,109,0.18); border-color: rgba(255,77,109,0.45); }
+  .btn-delete:disabled { opacity: 0.35; cursor: not-allowed; }
+  input[type=file] { display: none; }
+
+  /* ── TOAST ───────────────────────────────────────────────────── */
+  #toast {
+    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: 4px;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em;
+    padding: 0.7rem 1.4rem; color: var(--accent2); opacity: 0;
+    transition: opacity 0.25s, transform 0.25s; pointer-events: none; z-index: 999;
+    white-space: nowrap;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.err { color: var(--accent3); border-color: rgba(255,77,109,0.3); }
+
+  /* ── LOADING SPINNER ─────────────────────────────────────────── */
+  .spin {
+    display: inline-block; width: 12px; height: 12px; border-radius: 50%;
+    border: 2px solid rgba(0,0,0,0.3); border-top-color: #000;
+    animation: spinning 0.6s linear infinite;
+  }
+  @keyframes spinning { to { transform: rotate(360deg); } }
+
+  @media (max-width: 700px) {
+    .admin-photo-grid { grid-template-columns: 1fr 1fr; }
+    header { padding: 1rem 1.2rem; }
+    main { padding: 1.5rem 1rem 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ──────────────────────────────────────────────────── -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">// SPO2_MONITOR</div>
+    <div class="login-title">Admin Panel</div>
+    <div class="login-sub">Manage project photos & schematic</div>
+    <label class="login-label" for="pwd">Admin Password</label>
+    <input class="login-input" type="password" id="pwd" placeholder="Enter password…" autocomplete="current-password">
+    <button class="login-btn" id="loginBtn">Login →</button>
+    <div class="login-err" id="loginErr">Incorrect password — try again.</div>
+  </div>
+</div>
+
+<!-- ── ADMIN PANEL ───────────────────────────────────────────────────── -->
+<div id="adminPanel">
+  <header>
+    <div class="header-left">
+      <span class="header-logo">// SPO2_MONITOR</span>
+      <span class="header-badge">Admin Panel</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <a href="/" target="_blank" class="view-site-btn">View Site ↗</a>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Schematic -->
+    <div class="section-header">
+      <div class="section-tag">Circuit Design</div>
+      <div class="section-title">Circuit Schematic</div>
+      <div class="section-desc">Upload the KiCad schematic export (PNG or JPG). Replaces the existing schematic immediately.</div>
+    </div>
+    <div class="sch-admin-wrap">
+      <div class="sch-preview" id="schPreview">
+        <img id="adminSchImg" alt="Circuit Schematic">
+        <div class="sch-placeholder" id="schPlaceholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(0,229,255,0.5)" stroke-width="1.1">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <polyline points="9,9 9,15 15,15"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="15" y1="9" x2="15" y2="15"/>
+          </svg>
+          <p>No schematic uploaded</p>
+        </div>
+      </div>
+      <div class="sch-actions">
+        <input type="file" id="schFile" accept="image/*">
+        <button class="btn btn-upload" id="schUploadBtn" onclick="document.getElementById('schFile').click()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload Schematic
+        </button>
+        <button class="btn btn-delete" id="schDeleteBtn" onclick="deleteSchematic()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          Remove
+        </button>
+        <span class="sch-filename" id="schFilename">—</span>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- Photos -->
+    <div class="section-header">
+      <div class="section-tag">Project Documentation</div>
+      <div class="section-title">Project Photos</div>
+      <div class="section-desc">Upload up to 6 photos. Each slot corresponds to a gallery slot on the portfolio page.</div>
+    </div>
+    <div class="admin-photo-grid" id="adminPhotoGrid">
+      <!-- Slots injected by JS -->
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const PHOTO_LABELS = [
+  'Breadboard Setup', 'OLED Display Output', 'Sensor Close-up',
+  'Wiring Detail', 'Finger Sensor Test', 'Team / Lab Photo'
+];
+
+let token = sessionStorage.getItem('spo2_admin_token') || '';
+let state = { photos: {}, schematic: null };
+
+// ── LOGIN ────────────────────────────────────────────────────────────────
+async function login() {
+  const pwd = document.getElementById('pwd').value.trim();
+  if (!pwd) return;
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = 'Checking…';
+
+  // Verify by hitting a protected endpoint
+  const res = await fetch('/api/state').then(r => r);
+  // Use a dummy upload to verify password (simpler: just test with a GET to state then use in first real call)
+  // Actually verify by attempting to hit a protected endpoint with a HEAD-like approach
+  // We'll store the token and verify on first real action. Check by attempting a test request.
+  const testRes = await fetch('/api/photo/999', {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${pwd}` }
+  });
+
+  if (testRes.status === 401) {
+    document.getElementById('loginErr').style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Login →';
+    return;
+  }
+
+  token = pwd;
+  sessionStorage.setItem('spo2_admin_token', token);
+  document.getElementById('loginErr').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminPanel').style.display = 'block';
+  await loadState();
+  renderPhotoGrid();
+}
+
+document.getElementById('loginBtn').addEventListener('click', login);
+document.getElementById('pwd').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  token = ''; sessionStorage.removeItem('spo2_admin_token');
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('pwd').value = '';
+});
+
+// Auto-login if token saved
+if (token) {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminPanel').style.display = 'block';
+  loadState().then(renderPhotoGrid);
+}
+
+// ── STATE ────────────────────────────────────────────────────────────────
+async function loadState() {
+  const res = await fetch('/api/state');
+  state = await res.json();
+  renderSchematic();
+}
+
+// ── SCHEMATIC ────────────────────────────────────────────────────────────
+function renderSchematic() {
+  const img         = document.getElementById('adminSchImg');
+  const placeholder = document.getElementById('schPlaceholder');
+  const filename    = document.getElementById('schFilename');
+  const delBtn      = document.getElementById('schDeleteBtn');
+
+  if (state.schematic) {
+    img.src = `/uploads/${state.schematic}?t=${Date.now()}`;
+    img.style.display = 'block';
+    placeholder.style.display = 'none';
+    filename.textContent = state.schematic;
+    delBtn.disabled = false;
+  } else {
+    img.style.display = 'none';
+    img.src = '';
+    placeholder.style.display = 'flex';
+    filename.textContent = '—';
+    delBtn.disabled = true;
+  }
+}
+
+document.getElementById('schFile').addEventListener('change', async function() {
+  if (!this.files[0]) return;
+  const btn = document.getElementById('schUploadBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Uploading…';
+
+  const fd = new FormData();
+  fd.append('schematic', this.files[0]);
+
+  try {
+    const res = await fetch('/api/upload/schematic', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: fd
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    state.schematic = data.url.split('/uploads/')[1];
+    renderSchematic();
+    toast('Schematic uploaded successfully');
+  } catch (err) {
+    toast(err.message || 'Upload failed', true);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Upload Schematic`;
+  this.value = '';
+});
+
+async function deleteSchematic() {
+  if (!confirm('Remove the schematic image?')) return;
+  const btn = document.getElementById('schDeleteBtn');
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/schematic', {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error((await res.json()).error);
+    state.schematic = null;
+    renderSchematic();
+    toast('Schematic removed');
+  } catch (err) {
+    toast(err.message || 'Delete failed', true);
+    btn.disabled = false;
+  }
+}
+
+// ── PHOTO GRID ────────────────────────────────────────────────────────────
+function renderPhotoGrid() {
+  const grid = document.getElementById('adminPhotoGrid');
+  grid.innerHTML = '';
+
+  for (let i = 0; i < 6; i++) {
+    const filename = state.photos[String(i)];
+    const card = document.createElement('div');
+    card.className = 'admin-photo-card';
+    card.id = `photo-card-${i}`;
+
+    card.innerHTML = `
+      <div class="admin-photo-preview">
+        <img id="photo-img-${i}" src="${filename ? `/uploads/${filename}?t=${Date.now()}` : ''}"
+             alt="${PHOTO_LABELS[i]}"
+             style="display:${filename ? 'block' : 'none'};">
+        <div class="slot-placeholder" id="photo-ph-${i}" style="display:${filename ? 'none' : 'flex'};">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="M21 15l-5-5L5 21"/>
+          </svg>
+          <span>Empty Slot</span>
+        </div>
+      </div>
+      <div class="admin-photo-footer">
+        <div class="slot-name">${String(i + 1).padStart(2, '0')} — ${PHOTO_LABELS[i]}</div>
+        <div class="slot-btns">
+          <input type="file" id="photo-file-${i}" accept="image/*">
+          <button class="btn btn-upload" id="photo-upload-btn-${i}"
+                  onclick="document.getElementById('photo-file-${i}').click()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            Upload
+          </button>
+          <button class="btn btn-delete" id="photo-delete-btn-${i}"
+                  onclick="deletePhoto(${i})"
+                  ${filename ? '' : 'disabled'}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            </svg>
+            Remove
+          </button>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+
+    // Attach file change listener
+    setTimeout(() => {
+      document.getElementById(`photo-file-${i}`).addEventListener('change', function() {
+        uploadPhoto(i, this);
+      });
+    }, 0);
+  }
+}
+
+async function uploadPhoto(idx, input) {
+  if (!input.files[0]) return;
+  const uploadBtn = document.getElementById(`photo-upload-btn-${idx}`);
+  uploadBtn.disabled = true;
+  uploadBtn.innerHTML = '<span class="spin"></span>';
+
+  const fd = new FormData();
+  fd.append('photo', input.files[0]);
+
+  try {
+    const res = await fetch(`/api/upload/photo/${idx}`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: fd
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+
+    // Update preview
+    const img = document.getElementById(`photo-img-${idx}`);
+    const ph  = document.getElementById(`photo-ph-${idx}`);
+    img.src = data.url + `?t=${Date.now()}`;
+    img.style.display = 'block';
+    ph.style.display = 'none';
+    document.getElementById(`photo-delete-btn-${idx}`).disabled = false;
+    state.photos[String(idx)] = data.url.split('/uploads/')[1];
+    toast(`Slot ${idx + 1} uploaded — ${PHOTO_LABELS[idx]}`);
+  } catch (err) {
+    toast(err.message || 'Upload failed', true);
+  }
+
+  uploadBtn.disabled = false;
+  uploadBtn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Upload`;
+  input.value = '';
+}
+
+async function deletePhoto(idx) {
+  if (!confirm(`Remove photo from slot ${idx + 1} — "${PHOTO_LABELS[idx]}"?`)) return;
+  const delBtn = document.getElementById(`photo-delete-btn-${idx}`);
+  delBtn.disabled = true;
+
+  try {
+    const res = await fetch(`/api/photo/${idx}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error((await res.json()).error);
+
+    document.getElementById(`photo-img-${idx}`).style.display = 'none';
+    document.getElementById(`photo-img-${idx}`).src = '';
+    document.getElementById(`photo-ph-${idx}`).style.display = 'flex';
+    delete state.photos[String(idx)];
+    toast(`Slot ${idx + 1} removed`);
+  } catch (err) {
+    toast(err.message || 'Delete failed', true);
+    delBtn.disabled = false;
+  }
+}
+
+// ── TOAST ────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, isErr = false) {
+  const el = document.getElementById('toast');
+  el.textContent = isErr ? '✕  ' + msg : '✓  ' + msg;
+  el.className = 'show' + (isErr ? ' err' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = ''; }, 3200);
+}
+</script>
+</body>
+</html>
