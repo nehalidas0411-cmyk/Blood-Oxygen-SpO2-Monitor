@@ -274,8 +274,7 @@ async function login() {
   // Use a dummy upload to verify password (simpler: just test with a GET to state then use in first real call)
   // Actually verify by attempting to hit a protected endpoint with a HEAD-like approach
   // We'll store the token and verify on first real action. Check by attempting a test request.
-  const testRes = await fetch('/api/photo/999', {
-    method: 'DELETE',
+  const testRes = await fetch('/api/auth', {
     headers: { 'Authorization': `Bearer ${pwd}` }
   });
 

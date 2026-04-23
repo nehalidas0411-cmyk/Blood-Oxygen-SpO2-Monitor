@@ -46,6 +46,7 @@ function requireAuth(req, res, next) {
 
 // GET current image state (portfolio reads this on load)
 app.get('/api/state', (_, res) => res.json(loadState()));
+app.get('/api/auth', requireAuth, (_, res) => res.json({ ok: true }));
 
 // ══════════════════════════════════════════════════════════════════════════
 //  ADMIN API  (all require Bearer token)
